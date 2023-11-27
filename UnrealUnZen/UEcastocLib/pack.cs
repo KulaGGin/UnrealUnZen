@@ -422,11 +422,7 @@ namespace UEcastocLib
             fdata.PackFilesToUcas(m, dir, outFilename, compression);
 
             if (aes.Length != 0)
-            {
-                var b = File.ReadAllBytes(outFilename + ".ucas");
-                var encrypted = Helpers.EncryptAES(b, aes);
-                File.WriteAllBytes(outFilename + ".ucas", encrypted);
-            }
+                Helpers.EncryptFileWithAES(outFilename + ".ucas", aes);
 
             var utocBytes = fdata.ConstructUtocFile(compression, aes);
             File.WriteAllBytes(outFilename + ".utoc", utocBytes);
