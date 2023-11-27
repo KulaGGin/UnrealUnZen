@@ -90,10 +90,10 @@ namespace UnrealUnZen
                     }
                 }
                 //File.WriteAllText("debg.json", JsonConvert.SerializeObject(manifest, Formatting.Indented));
-                int res = Packer.PackGameFiles(dialog.FileName, manifest, saveFileDialog.FileName, RepackMethodCMB.GetItemText(RepackMethodCMB.SelectedItem), AESKey.Text);
-                if (res != 0)
+                int gameFilesPackedTotal = Packer.PackGameFiles(dialog.FileName, manifest, saveFileDialog.FileName, RepackMethodCMB.GetItemText(RepackMethodCMB.SelectedItem), AESKey.Text);
+                if (gameFilesPackedTotal != 0)
                 {
-                    MessageBox.Show(res + " file(s) packed!");
+                    MessageBox.Show(gameFilesPackedTotal + " file(s) packed!");
                 }
             }
         }
@@ -149,10 +149,10 @@ namespace UnrealUnZen
             {
                 Manifest manifest = Packer.JsonToManifest(dialog.FileName);
 
-                int res = Packer.PackGameFiles(dialog.FileName, manifest, saveFileDialog.FileName, RepackMethodCMB.GetItemText(RepackMethodCMB.SelectedItem), AESKey.Text);
-                if (res != 0)
+                int gameFilesPackedTotal = Packer.PackGameFiles(dialog.FileName, manifest, saveFileDialog.FileName, RepackMethodCMB.GetItemText(RepackMethodCMB.SelectedItem), AESKey.Text);
+                if (gameFilesPackedTotal != 0)
                 {
-                    MessageBox.Show(res + " file(s) packed!");
+                    MessageBox.Show(gameFilesPackedTotal + " file(s) packed!");
                 }
             }
         }

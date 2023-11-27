@@ -45,12 +45,16 @@ namespace UEcastocLib
                 throw new Exception("Manifest read is null");
             }
 
-            int n = PackToCasToc(dirPath, manifest, outFile, compression, aes);
+            int numberOfFilesPacked = PackToCasToc(dirPath, manifest, outFile, compression, aes);
 
             // Write the embedded .pak file
             byte[] embedded = ToolResources.Packed_P;
-            File.WriteAllBytes(outFile + ".pak", embedded);
-            return n - 1;
+            using (FileStream fileStream = File.Open(outFile + ".pak", FileMode.OpenOrCreate))
+            {
+                fileStream.Write(embedded, 0, embedded.Length);
+            }
+
+            return numberOfFilesPacked;
         }
 
         public static List<GameFileMetaData> ListFilesInDir(string dir, Dictionary<string, FIoChunkID> pathToChunkID)
@@ -390,7 +394,7 @@ namespace UEcastocLib
 
         public static int PackToCasToc(string dir, Manifest m, string outFilename, string compression, byte[] aes)
         {
-            var fdata = new List<GameFileMetaData>();
+            var gameFileMetaDatas = new List<GameFileMetaData>();
             GameFileMetaData newEntry;
 
             foreach (var v in m.Files)
@@ -415,18 +419,20 @@ namespace UEcastocLib
                     CompressionBlocks = new List<FIoStoreTocCompressedBlockEntry>()
                 };
 
-                fdata.Add(newEntry);
+                gameFileMetaDatas.Add(newEntry);
             }
             //var files = ListFilesInDir(dir, m.Files.ToDictionary(k => k.Filepath, v => FIoChunkID.FromHexString(v.ChunkID)));
 
-            fdata.PackFilesToUcas(m, dir, outFilename, compression);
+            gameFileMetaDatas.PackFilesToUcas(m, dir, outFilename, compression);
 
             if (aes.Length != 0)
                 Helpers.EncryptFileWithAES(outFilename + ".ucas", aes);
 
-            var utocBytes = fdata.ConstructUtocFile(compression, aes);
+            var utocBytes = gameFileMetaDatas.ConstructUtocFile(compression, aes);
             File.WriteAllBytes(outFilename + ".utoc", utocBytes);
-            return fdata.Count;
+
+            int gameFilesPackedTotal = gameFileMetaDatas.Count;
+            return gameFilesPackedTotal;
         }
     }
 }
