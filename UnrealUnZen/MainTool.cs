@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using UEcastocLib;
 
@@ -12,8 +13,14 @@ namespace UnrealUnZen
 {
     public partial class MainTool : Form
     {
+        private CommonOpenFileDialog UnpackFolderBrowserDialog = new CommonOpenFileDialog();
+
         public MainTool()
         {
+            UnpackFolderBrowserDialog.IsFolderPicker = true;
+            UnpackFolderBrowserDialog.Title = 
+                "Select a folder into which to unpack the package files.\n" +
+                "Another folder with the name of the selected package will be created automatically.";
             InitializeComponent();
         }
 
@@ -66,9 +73,17 @@ namespace UnrealUnZen
         }
         private void UnpackBTN_Click(object sender, EventArgs e)
         {
-            Directory.CreateDirectory(UTocFileAddress + "_Export");
-            int exportcount = UTocFile.UnpackUcasFiles(Path.ChangeExtension(UTocFileAddress, ".ucas"), UTocFileAddress + "_Export", RegexUnpack.Text);
-            MessageBox.Show(exportcount + " file(s) extracted!");
+            UnpackFolderBrowserDialog.InitialDirectory = UTocFileAddress;
+            if (UnpackFolderBrowserDialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var OutFolderName = Path.GetFileNameWithoutExtension(UTocFileAddress) + "_Export";
+                var UnpackDirectoryPath = Path.Combine(UnpackFolderBrowserDialog.FileName, OutFolderName);
+                Directory.CreateDirectory(UnpackDirectoryPath);
+
+                int exportcount = UTocFile.UnpackUcasFiles(Path.ChangeExtension(UTocFileAddress, ".ucas"),
+                    UnpackDirectoryPath, RegexUnpack.Text);
+                MessageBox.Show(exportcount + " file(s) extracted!");
+            }
         }
 
 
